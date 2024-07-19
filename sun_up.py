@@ -3,7 +3,7 @@ from suntime import Sun
 import time
 import logging
 import argparse
-import RPI.GPIO as GPIO
+import RPi.GPIO as GPIO
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Debug")
