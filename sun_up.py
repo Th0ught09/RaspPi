@@ -1,11 +1,15 @@
 import datetime
-from suntime import Sun, SunTimeException
+from suntime import Sun
 import time
 import logging
 import argparse
+import RPI.GPIO as GPIO
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Debug")
+
+# SET SUN, COORDS AND START AND END TIMES
+########################################################################################################################
 
 LATITUDE = 51.38
 LONGITUDE = 0.24
@@ -15,6 +19,11 @@ END_TIME = 4
 
 SUN = Sun(LATITUDE, LONGITUDE)
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+# SET LOGGING LEVELS
+########################################################################################################################
+
 logger = logging.getLogger(__name__)
 
 if parser.parse_args().verbose:
@@ -23,6 +32,17 @@ else:
     logging.basicConfig(level=logging.INFO)
 
 # logger.setLevel(logging.INFO)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+# SET GPIO PINS
+########################################################################################################################
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(13, GPIO.OUT)
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 while True:
 
@@ -37,11 +57,13 @@ while True:
     logger.debug('Current time {} Local London time'.format(now.strftime('%H:%M')))
     if (abd_sr.replace(tzinfo=None) < now < abd_ss.replace(tzinfo=None)) or (END_TIME <= int(datetime.datetime.now().strftime("%H")) >= START_TIME):
         logger.info('The sun is up')
+        GPIO.output(13, GPIO.LOW)
         # put white LED off when sun is up
 
 
     elif now > abd_ss.replace(tzinfo=None) or now < abd_sr.replace(tzinfo=None) :
         logger.info('The sun is down')
-        # put white LED on when sun is up
+        GPIO.output(13, GPIO.HIGH)
+        # put white LED on when sun is down
 
     time.sleep(2)
